@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Литературная лента | Чехов & Достоевский</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            font-family: 'Inter', sans-serif;
+            color: #2c1810;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* фиксированная панель */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 12px rgba(128, 0, 32, 0.06);
+            z-index: 1000;
+            padding: 0.9rem 2rem;
+            border-bottom: 2px solid #8b2c3e;
+        }
+
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* логотип: простая четырехугольная искра */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+        .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+        .simple-spark {
+            width: 100%;
+            height: 100%;
+        }
+        .logo-text {
+            color: #8b2c3e;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #5a3a3a;
+            font-size: 0.75rem;
+            font-weight: 500;
+            gap: 0.3rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 40px;
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+            color: #8b2c3e;
+            transition: 0.2s;
+        }
+
+        .nav-item span {
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-2px);
+            background: rgba(139, 44, 62, 0.08);
+        }
+        .nav-item:hover i {
+            color: #a0364c;
+        }
+
+        main {
+            margin-top: 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            padding: 2rem 2rem 2.5rem 2rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #8b2c3e;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: inline-block;
+            width: auto;
+            position: relative;
+        }
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: #8b2c3e;
+            border-radius: 2px;
+        }
+
+        /* ЛЕНТА ПИСАТЕЛЕЙ — с бордовой рамкой */
+        .writers-section {
+            background: transparent;
+            margin-bottom: 0;
+        }
+
+        .writers-wrapper {
+            border: 2px solid #8b2c3e;
+            border-radius: 28px;
+            padding: 2rem 2rem;
+            background: #ffffff;
+            transition: box-shadow 0.3s ease;
+        }
+        .writers-wrapper:hover {
+            box-shadow: 0 8px 24px rgba(139, 44, 62, 0.1);
+        }
+
+        .writers-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .writer-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2.8rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            transition: opacity 0.7s ease, transform 0.6s ease;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 1.5rem 1.5rem;
+            border: 1px solid rgba(139, 44, 62, 0.25);
+            transition: all 0.3s ease;
+        }
+        .writer-card:hover {
+            transform: translateY(-4px);
+            border-color: #8b2c3e;
+            box-shadow: 0 8px 20px rgba(139, 44, 62, 0.08);
+        }
+
+        .writer-card.left-animate {
+            transform: translateX(-50px);
+        }
+        .writer-card.right-animate {
+            transform: translateX(50px);
+        }
+        .writer-card.revealed {
+            opacity: 1;
+            transform: translateX(0) !important;
+        }
+
+        /* рамка для фото — бордовая */
+        .writer-photo {
+            flex: 0 0 270px;
+            width: 270px;
+            height: 360px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            background: #f8f5f2;
+            position: relative;
+            border: 2px solid #8b2c3e;
+        }
+        .writer-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .writer-card:hover .writer-photo img {
+            transform: scale(1.02);
+        }
+
+        .writer-info {
+            flex: 1;
+            min-width: 260px;
+            max-width: 520px;
+            padding: 0.5rem;
+        }
+        .writer-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #8b2c3e;
+            margin-bottom: 0.5rem;
+        }
+        .writer-life {
+            font-size: 0.85rem;
+            color: #8b2c3e;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            letter-spacing: 0.3px;
+        }
+        .writer-bio {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: #3a2a26;
+            font-weight: 400;
+            margin: 0.8rem 0;
+        }
+        .writer-quote {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #8b2c3e;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed rgba(139, 44, 62, 0.3);
+        }
+        .future-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0.8rem;
+            font-weight: 500;
+            color: #8b2c3e;
+            text-decoration: none;
+            background: transparent;
+            padding: 0.5rem 0;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(139, 44, 62, 0.4);
+        }
+        .future-link:hover {
+            color: #a0364c;
+            gap: 12px;
+            border-bottom-color: #8b2c3e;
+        }
+
+        /* блок автора — с бордовой рамкой */
+        .creator-section {
+            background: transparent;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .creator-wrapper {
+            border: 2px solid #8b2c3e;
+            border-radius: 28px;
+            padding: 2rem 2rem;
+            background: #ffffff;
+            transition: box-shadow 0.3s ease;
+        }
+        .creator-wrapper:hover {
+            box-shadow: 0 8px 24px rgba(139, 44, 62, 0.08);
+        }
+        .creator-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: stretch;
+        }
+        .creator-card {
+            flex: 1.2;
+            min-width: 260px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 1.6rem;
+            border: 1px solid rgba(139, 44, 62, 0.25);
+        }
+        .creator-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            color: #8b2c3e;
+            margin-bottom: 0.4rem;
+        }
+        .creator-desc {
+            color: #4a3a36;
+            line-height: 1.5;
+            margin: 0.6rem 0;
+            font-size: 0.85rem;
+        }
+        .contact-info {
+            margin: 1rem 0 0 0;
+            border-top: 1px solid rgba(139, 44, 62, 0.2);
+            padding-top: 0.8rem;
+        }
+        .contact-info p {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: #4a3a36;
+            margin: 6px 0;
+        }
+        .contact-info i {
+            width: 26px;
+            color: #8b2c3e;
+        }
+        .site-map {
+            flex: 0.9;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 1.6rem;
+            border: 1px solid rgba(139, 44, 62, 0.25);
+        }
+        .site-map h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #8b2c3e;
+        }
+        .map-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .map-items p {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 400;
+            border-bottom: 1px dashed rgba(139, 44, 62, 0.2);
+            padding-bottom: 6px;
+            font-size: 0.8rem;
+            color: #4a3a36;
+        }
+        .plan-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #8b2c3e;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 0.6rem;
+            transition: 0.2s;
+            font-size: 0.8rem;
+            border: none;
+        }
+        .plan-link:hover {
+            background: #a0364c;
+            gap: 10px;
+        }
+
+        .fade-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.6s ease;
+        }
+        .fade-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 850px) {
+            .navbar { padding: 0.7rem 1rem; }
+            .nav-icons { gap: 1rem; }
+            .writer-card { flex-direction: column; text-align: center; padding: 1.2rem; }
+            .writer-info { text-align: center; }
+            .writers-wrapper, .creator-wrapper { padding: 1.2rem; }
+        }
+        @media (max-width: 550px) {
+            .writer-photo { width: 240px; height: 320px; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.8rem;
+            color: #6a4a42;
+            font-size: 0.7rem;
+            border-top: 2px solid #8b2c3e;
+            max-width: 1300px;
+            margin: 0 auto;
+            margin-top: 1rem;
+        }
+        .custom-toast {
+            transition: opacity 0.25s;
+            pointer-events: none;
+            background: #ffffff;
+            border-left: 4px solid #8b2c3e;
+            color: #2c1810;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        ::-webkit-scrollbar { width: 5px; background: #eeeeee; }
+        ::-webkit-scrollbar-thumb { background: #8b2c3e; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-container">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg class="simple-spark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 2 L19 14 L16 12 L13 14 L16 2Z" fill="#8b2c3e"/>
+                    <path d="M30 16 L18 19 L20 16 L18 13 L30 16Z" fill="#8b2c3e"/>
+                    <path d="M16 30 L13 18 L16 20 L19 18 L16 30Z" fill="#8b2c3e"/>
+                    <path d="M2 16 L14 13 L12 16 L14 19 L2 16Z" fill="#8b2c3e"/>
+                </svg>
+            </div>
+            <span class="logo-text">ЛИТЕРАТУРНАЯ ЛЕНТА</span>
+        </div>
+        <div class="nav-icons">
+            <div class="nav-item"><i class="fas fa-feather-alt"></i><span>Писатели</span></div>
+            <div class="nav-item"><i class="fas fa-book-open"></i><span>Произведения</span></div>
+            <div class="nav-item"><i class="fas fa-video"></i><span>Видеоуроки</span></div>
+            <div class="nav-item"><i class="fas fa-layer-group"></i><span>Дополнение</span></div>
+            <div class="nav-item"><i class="fas fa-user-astronaut"></i><span>Автор</span></div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <!-- ЛЕНТА ПИСАТЕЛЕЙ с бордовой рамкой -->
+    <section class="writers-section fade-scroll">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <h2 class="section-title">Писатели</h2>
+        </div>
+        <div class="writers-wrapper">
+            <div class="writers-grid" id="writersGrid"></div>
+        </div>
+    </section>
+
+    <!-- БЛОК АВТОРА с бордовой рамкой -->
+    <section class="creator-section fade-scroll">
+        <div class="creator-wrapper">
+            <div class="creator-grid">
+                <div class="creator-card">
+                    <div class="creator-name">Шерикова Адель</div>
+                    <div class="creator-desc">студентка 1 курса, разработчик ПО — 18 группа<br>литература + код = эта лента</div>
+                    <a href="#" class="plan-link" id="wordDocLink"><i class="fas fa-download"></i> скачать план .docx</a>
+                    <div class="contact-info">
+                        <p><i class="fab fa-telegram"></i> @adel_sherikova</p>
+                        <p><i class="fas fa-envelope"></i> adel.litera@inbox.ru</p>
+                        <p><i class="fab fa-instagram"></i> @adel_writes</p>
+                        <p><i class="fas fa-phone-alt"></i> +7 (999) 123-45-67</p>
+                    </div>
+                </div>
+                <div class="site-map">
+                    <h3><i class="fas fa-compass"></i> структура</h3>
+                    <div class="map-items">
+                        <p><i class="fas fa-user-pen"></i> Писатели — галерея</p>
+                        <p><i class="fas fa-book"></i> Произведения — тексты</p>
+                        <p><i class="fas fa-chalkboard-user"></i> Видеоуроки — лекции</p>
+                        <p><i class="fas fa-puzzle-piece"></i> Дополнение — тесты</p>
+                        <p><i class="fas fa-star"></i> Автор — контакты</p>
+                    </div>
+                    <div style="margin-top: 1rem; font-style: italic; color:#8b2c3e; font-size:0.7rem; opacity:0.7;">
+                        тишина между строк — самая громкая
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>ЛИТЕРАТУРНАЯ ЛЕНТА | Шерикова Адель, 18 группа | четырехугольная искра</footer>
+</main>
+
+<script>
+    // лента писателей — только Чехов и Достоевский
+    const writersData = [
+        { 
+            name: "Антон Павлович Чехов", 
+            life: "1860–1904",
+            bio: "Великий русский писатель, драматург, врач. Автор бессмертных рассказов, повестей и пьес: «Чайка», «Дядя Ваня», «Три сестры», «Вишнёвый сад», «Палата №6», «Дама с собачкой». Тонкий психолог, мастер короткой прозы, чьи произведения переведены на сотни языков. Врач по образованию, он лечил тысячи крестьян, основал школы, совершил героическое путешествие на Сахалин.",
+            quote: "«В человеке должно быть всё прекрасно: и лицо, и одежда, и душа, и мысли».",
+            photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Anton_Chekhov_1898_by_Osip_Braz.jpg/500px-Anton_Chekhov_1898_by_Osip_Braz.jpg"
+        },
+        { 
+            name: "Фёдор Достоевский", 
+            life: "1821–1881",
+            bio: "Исследователь глубин человеческой души. «Преступление и наказание», «Идиот», «Братья Карамазовы» — вечные вопросы о добре, зле, искуплении.",
+            quote: "«Красота спасёт мир».",
+            photo: "https://images.unsplash.com/photo-1544717302-2b5cf2c3b4f3?w=600&h=800&fit=crop" 
+        }
+    ];
+
+    const grid = document.getElementById('writersGrid');
+    writersData.forEach((writer, idx) => {
+        const card = document.createElement('div');
+        card.className = `writer-card ${idx % 2 === 0 ? 'left-animate' : 'right-animate'}`;
+        card.innerHTML = `
+            <div class="writer-photo">
+                <img src="${writer.photo}" alt="${writer.name}" loading="lazy" onerror="this.src='https://placehold.co/600x800/f5f0ed/8b2c3e?text=${encodeURIComponent(writer.name.split(' ')[0])}'">
+            </div>
+            <div class="writer-info">
+                <div class="writer-name">${writer.name}</div>
+                <div class="writer-life">${writer.life || ''}</div>
+                <div class="writer-bio">${writer.bio}</div>
+                <div class="writer-quote">${writer.quote || ''}</div>
+                <div class="future-link"><span>о творчестве</span> <i class="fas fa-arrow-right"></i></div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    // анимации по скроллу
+    const obsOptions = { threshold: 0.2, rootMargin: "0px 0px -20px 0px" };
+    const writerCards = document.querySelectorAll('.writer-card');
+    const fadeBlocks = document.querySelectorAll('.fade-scroll');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                if (e.target.classList.contains('writer-card')) e.target.classList.add('revealed');
+                if (e.target.classList.contains('fade-scroll')) e.target.classList.add('visible');
+            }
+        });
+    }, obsOptions);
+    writerCards.forEach(c => observer.observe(c));
+    fadeBlocks.forEach(b => observer.observe(b));
+    setTimeout(() => {
+        writerCards.forEach(c => { const r = c.getBoundingClientRect(); if (r.top < window.innerHeight - 100) c.classList.add('revealed'); });
+        fadeBlocks.forEach(b => { const r = b.getBoundingClientRect(); if (r.top < window.innerHeight - 80) b.classList.add('visible'); });
+    }, 120);
+
+    // тост-уведомления
+    const showToast = (msg) => {
+        let t = document.querySelector('.custom-toast');
+        if (t) t.remove();
+        let div = document.createElement('div');
+        div.className = 'custom-toast';
+        div.innerText = msg;
+        div.style.position = 'fixed';
+        div.style.bottom = '25px';
+        div.style.left = '50%';
+        div.style.transform = 'translateX(-50%)';
+        div.style.background = '#ffffff';
+        div.style.color = '#2c1810';
+        div.style.padding = '10px 24px';
+        div.style.borderRadius = '40px';
+        div.style.fontSize = '0.75rem';
+        div.style.fontWeight = '500';
+        div.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
+        div.style.border = '1px solid #8b2c3e';
+        div.style.zIndex = '3000';
+        document.body.appendChild(div);
+        setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 350); }, 2000);
+    };
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.addEventListener('click', () => showToast(`Раздел «${el.querySelector('span')?.innerText}» скоро появится`));
+    });
+    document.querySelectorAll('.future-link').forEach(link => {
+        link.addEventListener('click', (e) => { e.preventDefault(); showToast('Биография и произведения будут доступны в обновлении'); });
+    });
+    const wordBtn = document.getElementById('wordDocLink');
+    if (wordBtn) wordBtn.addEventListener('click', (e) => { e.preventDefault(); showToast('Файл «План_литература.docx» скоро будет доступен'); });
+    
+    document.querySelectorAll('.writer-photo img').forEach(img => {
+        img.onerror = function() { this.src = "https://placehold.co/600x800/f5f0ed/8b2c3e?text=Писатель"; };
+    });
+</script>
+</body>
+</html>
